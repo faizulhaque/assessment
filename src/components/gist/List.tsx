@@ -1,10 +1,10 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import Badges from "./Badges";
-import ForkUser from "./ForkUser";
+import BadgesSection from "./BadgesSection";
 import { GitService } from "./GistService";
 import { Gist } from "./models/Gist";
 import { throttle } from "lodash";
+import ForkUserSection from "./ForkUserSection";
 
 export interface IFormState {
   username: string;
@@ -46,17 +46,6 @@ class List extends React.Component<
     );
     this.setState({ gists });
   };
-
-  // private processFormSubmission = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-  //     e.preventDefault();
-  //     this.setState({ loading: true });
-  //     Axios.patch(`http://localhost:5000/customers/${this.state.username}`, this.state.values).then(data => {
-  //         this.setState({ submitSuccess: true, loading: false })
-  //         setTimeout(() => {
-  //             this.props.history.push('/');
-  //         }, 1500)
-  //     })
-  // }
 
   handleInputChanges = (username: string) => {
     console.log("e.currentTarget.value", username);
@@ -113,8 +102,8 @@ class List extends React.Component<
                   gists.length &&
                   gists.map((gist) => (
                     <tr key={gist.id}>
-                      <Badges files={gist.files}></Badges>
-                      <ForkUser url={gist.forks_url}></ForkUser>
+                      <BadgesSection files={gist.files}></BadgesSection>
+                      <ForkUserSection {...gist}></ForkUserSection>
                       <td>{gist?.description}</td>
                     </tr>
                   ))}
