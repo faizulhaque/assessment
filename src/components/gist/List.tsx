@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import BadgesSection from "./BadgesSection";
-import { GitService } from "./GistService";
+import { GitService } from "./GitService";
 import { Gist } from "./models/Gist";
 import { throttle } from "lodash";
 import ForkUserSection from "./ForkUserSection";

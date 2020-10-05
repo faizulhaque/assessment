@@ -1,5 +1,5 @@
 import React from "react";
-import { GitService } from "./GistService";
+import { GitService } from "./GitService";
 import { ForkUser } from "./models/Gist";
 
 export interface IForkUserProps {

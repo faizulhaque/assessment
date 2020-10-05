@@ -19,13 +19,24 @@
     "typescript": "3.7.2"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.150"
+    "@types/lodash": "4.14.150",
+    "@types/jest": "24.0.24",
+    "@types/enzyme": "3.10.5",
+    "@types/enzyme-adapter-react-16": "1.0.6",
+    "jest": "24.9.0",
+    "ts-jest": "24.2.0",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test": "jest --silent --coverage",
+    "test:watch": "jest --watch --runInBand --verbose false",
+    "test:verbose": "jest --verbose",
+    "test-log": "jest --coverage",
+    "test-update": "jest --silent -u"
   },
   "eslintConfig": {
     "extends": "react-app"
