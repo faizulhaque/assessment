@@ -1,36 +1,51 @@
-import Axios from "axios";
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import Badges from "./Badges";
 import ForkUser from "./ForkUser";
+import { GitService } from "./GistService";
+import { Gist } from "./models/Gist";
+import { throttle } from "lodash";
 
-export interface IGists {
-  [key: string]: any;
-}
 export interface IFormState {
   username: string;
-  gists: IGists[];
+  gists: Gist[];
+  isLoading: boolean;
 }
 
 class List extends React.Component<
   RouteComponentProps<{ username: string }>,
   IFormState
 > {
+  private gistService = new GitService();
+  onUsernameThrottled: any;
   constructor(props: RouteComponentProps<{ username: string }>) {
     super(props);
     this.state = {
-      username: this.props.match.params.username,
+      username: "",
       gists: [],
+      isLoading: false,
     };
+
+    this.onUsernameThrottled = throttle(this.handleInputChanges, 200);
   }
 
-  async componentDidMount() {
-    const { username } = this.state;
-    const response = await Axios.get(
-      `https://api.github.com/users/${username}/gists`
-    );
-    this.setState({ gists: response.data });
+  componentWillUnmount(): void {
+    this.onUsernameThrottled.cancel();
   }
+
+  componentDidMount() {
+    // TODO: Not needed for now.
+  }
+
+  getDataFromAPI = async (): Promise<void> => {
+    if (!this.state.username) {
+      return;
+    }
+    const gists = await this.gistService.getGistDataByUsername(
+      this.state.username
+    );
+    this.setState({ gists });
+  };
 
   // private processFormSubmission = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
   //     e.preventDefault();
@@ -43,16 +58,13 @@ class List extends React.Component<
   //     })
   // }
 
-  private setValues = (values: IGists) => {
-    this.setState({ gists: { ...this.state.gists, ...values } });
-  };
-  private handleInputChanges = (e: React.FormEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    this.setValues({ username: e.currentTarget.value });
+  handleInputChanges = (username: string) => {
+    console.log("e.currentTarget.value", username);
+    this.setState({ username }, this.getDataFromAPI);
   };
 
   render() {
-    const { gists } = this.state;
+    const { gists, username, isLoading } = this.state;
     return (
       <div className="App">
         <h1> Public Gists List</h1>
@@ -61,9 +73,14 @@ class List extends React.Component<
             <div className="form-group col-md-12">
               <input
                 type="text"
-                id="first_name"
+                id="username"
                 defaultValue={this.state.username}
-                onChange={(e) => this.handleInputChanges(e)}
+                onChange={({ target: { value } }) =>
+                  this.onUsernameThrottled(value)
+                }
+                onKeyPress={(e) => {
+                  e.key === "Enter" && e.preventDefault();
+                }}
                 name="Username"
                 className="form-control"
                 placeholder="Enter username"
@@ -71,6 +88,16 @@ class List extends React.Component<
             </div>
           </form>
         </div>
+        {!username && (
+          <div className="container">
+            <div className="row">Waiting for your input.</div>
+          </div>
+        )}
+        {isLoading && (
+          <div className="container">
+            <div className="row">Please wait...</div>
+          </div>
+        )}
         <div className="container">
           <div className="row">
             <table className="table table-bordered">
@@ -88,7 +115,7 @@ class List extends React.Component<
                     <tr key={gist.id}>
                       <Badges files={gist.files}></Badges>
                       <ForkUser url={gist.forks_url}></ForkUser>
-                      <td>{gist.description}</td>
+                      <td>{gist?.description}</td>
                     </tr>
                   ))}
               </tbody>
